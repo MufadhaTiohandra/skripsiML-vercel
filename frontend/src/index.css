@@ -1,0 +1,27 @@
+/* src/index.css */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* 1. Hapus margin bawaan browser */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Mencegah scroll ke samping */
+}
+
+/* 2. Pastikan Root React juga Full Screen */
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /* Hapus max-width bawaan Vite yang bikin tampilan jadi kotak di tengah */
+  max-width: none; 
+  text-align: left; /* Reset text align */
+}
