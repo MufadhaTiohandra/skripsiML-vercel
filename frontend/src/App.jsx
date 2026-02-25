@@ -6,6 +6,7 @@ import Navbar from './Navbar'
 import './App.css'
 
 // Questions data
+const API_URL = import.meta.env.VITE_API_URL
 const IAT_QUESTIONS = {
     1: "Seberapa sering Kamu berkata pada diri sendiri, \"hanya beberapa menit lagi,\" saat sedang online?",
     2: "Seberapa sering Kamu mengabaikan pekerjaan rumah tangga untuk menghabiskan lebih banyak waktu online?",
@@ -33,22 +34,70 @@ const IAT_QUESTIONS = {
 function ResultCard({ result }) {
   if (!result) return null;
   
-  const isAddicted = result.prediction === 1;
+  const predictionLevel = result.prediction;
   const confidencePercentage = (Math.max(...result.probability) * 100).toFixed(0);
   
+  // Classification mapping
+  const classifications = {
+    0: { label: "Normal", color: "#4caf50", icon: "✓", description: "Tidak ada indikasi kecanduan internet" },
+    1: { label: "Ringan", color: "#ffa726", icon: "⚠", description: "Terdapat indikasi kecanduan internet tingkat ringan" },
+    2: { label: "Sedang", color: "#ff7043", icon: "⚠⚠", description: "Terdapat indikasi kecanduan internet tingkat sedang" },
+    3: { label: "Berat", color: "#e53935", icon: "⚠⚠⚠", description: "Terdapat indikasi kecanduan internet tingkat berat" }
+  };
+  
+  const classification = classifications[predictionLevel] || classifications[0];
+  
   return (
-    <div style={{ 
+    <div className="result-card" style={{ 
+      marginLeft: "auto",
+      marginRight: "auto",
       marginTop: "30px", 
-      padding: "20px", 
-      backgroundColor: isAddicted ? "#ff4d4d" : "#4caf50", 
-      color: "white",
-      borderRadius: "10px",
-      textAlign: "center"
+      padding: "30px", 
+      backgroundColor: "#1e1e1e",
+      border: `3px solid ${classification.color}`,
+      borderRadius: "15px",
+      textAlign: "center",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.3)"
     }}> 
-      <h2>Hasil Prediksi: {isAddicted}</h2>
-      <p>Confidence Score: {confidencePercentage}%</p>
+      <div style={{ fontSize: "48px", marginBottom: "10px" }}>
+        {classification.icon}
+      </div>
+      
+      <h2 style={{ 
+        color: classification.color, 
+        fontSize: "32px",
+        margin: "10px 0",
+        fontWeight: "bold"
+      }}>
+        {classification.label}
+      </h2>
+      
+      <p style={{ 
+        color: "#aaa", 
+        fontSize: "16px",
+        marginBottom: "20px"
+      }}>
+        {classification.description}
+      </p>
+      
+      <div style={{
+        display: "inline-block",
+        padding: "10px 20px",
+        backgroundColor: "rgba(255,255,255,0.1)",
+        borderRadius: "25px",
+        marginTop: "10px"
+      }}>
+        <p style={{ 
+          color: "white", 
+          fontSize: "14px",
+          margin: 0
+        }}>
+          Confidence Score: <strong style={{ color: classification.color }}>{confidencePercentage}%</strong>
+        </p>
+      </div>
     </div>
   );
+
 }
 
 // Loading indicator component
@@ -212,7 +261,7 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // fetch data from backend
-      const response = await axios.post('http://127.0.0.1:8000/predict', payload);
+      const response = await axios.post(`${API_URL}/predict`, payload);
       setResult(response.data);
 
       window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
