@@ -3,21 +3,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import pandas as pd
+import os
 
 app = FastAPI()
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["FRONTEND_URL","*"], 
+    allow_origins=[os.getenv("FRONTEND_URL", "*")], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-scaler = joblib.load('models/scaler.pkl')
-model = joblib.load('models/svm_model_noCV.pkl')
+# Use absolute path for model loading in Vercel
+dirname = os.path.dirname(__file__)
+scaler = joblib.load(os.path.join(dirname, '../models/scaler.pkl'))
+model = joblib.load(os.path.join(dirname, '../models/svm_model_noCV.pkl'))
 
 
 class StudentData(BaseModel):
